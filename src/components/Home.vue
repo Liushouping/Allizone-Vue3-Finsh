@@ -1,6 +1,6 @@
 <script>
 import { ref, reactive, onBeforeMount, onMounted, onUnmounted } from "vue";
-
+import _ from 'underscore';
 import gsap from 'gsap';
 
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -162,71 +162,52 @@ export default{
             markers: false,
            },
            onEnter() {
-              function play() {
-                // 延遲0.5秒，隱藏第一個單字
-                let timesRunba = 0;
-                let intervalba = setInterval(function(){
-                  timesRunba += 1000;
-                  // console.log(timesRunba);
-                  $('.t').addClass('hidden');
-                  clearInterval(intervalba);
-                }, 500);
-                // 延遲0.5秒，過渡動畫
-                let timesRuna = 0;
-                let intervala = setInterval(function(){
-                  timesRuna += 1000;
-                  // console.log(timesRuna);
-                  //移除第一個單字隱藏
-                  $('.center').removeClass('hidden');
-                  //移除Class past 透明濾鏡動畫
+              async function play() {
+                const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+                // 過渡動畫的時間間隔和延遲時間
+                const intervalTime = 1000;
+                const delayTime = 2000;
+
+                // 設定文字的初始狀態
+                $('.center').removeClass('hidden');
+                $('.blurtext span:nth-child(1)').addClass('active');
+
+                // 使用防抖函數控制 play 函數的執行次數
+                const debouncedPlay = _.debounce(play, delayTime + 2 * intervalTime);
+
+                // 隱藏第一個單字，並等待 0.5 秒後執行下一步動作
+                $('.t').addClass('hidden');
+                await sleep(3500);
+
+                // 過渡動畫
+                for (let i = 1; i < $('.blurtext span').length; i++) {
+                  // 移除透明濾鏡動畫
                   $('.blurtext span.past').removeClass('past');
-                  //新增Class past,移除Class active
+                  // 新增 past class, 移除 active class
                   $('.blurtext span.active').addClass('past').removeClass('active');
-                  //新增Class active 清除濾鏡動畫
+                  // 新增 active class，清除濾鏡動畫
                   $('.blurtext span.past + span').addClass('active');
-                  //判斷字串為空,新增Class active
-                  if ($('.blurtext span.active').length == 0){ 
-                    $('.blurtext span:nth-child(1)').addClass('active');
-                  };
-                  //判斷秒數大於等於1秒,清除定時器
-                  if(timesRuna >= 1000){
-                    clearInterval(intervala); 
-                    return;
-                  };
-                }, 500);
-                // 延遲兩秒，隱藏第一個單字
-                let timesRunb = 0;
-                let intervalb = setInterval(function(){
-                  timesRunb += 1000;
-                  // console.log(timesRunb);
-                  $('.t').addClass('hidden');
-                  clearInterval(intervalb);
-                }, 2000);
-                // 延遲兩秒，過渡動畫
-                let timesRun = 0;
-                let interval = setInterval(function(){
-                  timesRun += 1000;
-                  console.log(123);
-                  //移除第一個單字隱藏
-                  $('.center').removeClass('hidden');
-                  //移除Class past 透明濾鏡動畫
-                  $('.blurtext span.past').removeClass('past');
-                  //新增Class past,移除Class active
-                  $('.blurtext span.active').addClass('past').removeClass('active');
-                  //新增Class active 清除濾鏡動畫
-                  $('.blurtext span.past + span').addClass('active');
-                  //判斷字串為空,新增Class active
-                  if ($('.blurtext span.active').length == 0){ 
-                    $('.blurtext span:nth-child(1)').addClass('active');
-                  };
-                  //判斷秒數大於等於7秒,清除定時器
-                  if(timesRun >= 6000){
-                    clearInterval(interval); 
-                    return;
-                  };
-                }, 2000);
-              };
-              debounceFunc(play(), 99999);
+
+                  // 如果所有單字都已經過渡完成，則跳出迴圈
+                  if ($('.blurtext span.active').length == 0) {
+                    break;
+                  }
+
+                  // 等待一段時間後繼續下一步動作
+                  await sleep(intervalTime);
+                }
+
+                // 隱藏第一個單字，並等待 2 秒後執行下一步動作
+                $('.t').addClass('hidden');
+                await sleep(delayTime);
+
+                // 使用防抖函數來控制函數的執行次數
+                debouncedPlay();
+              }
+
+              play();
+
           },
            y: 200,
            scale: 1,
@@ -725,6 +706,7 @@ class="relative overflow-hidden" style="background: #020020;">
         <span>virtualizing</span>
         <span>evolving</span>
         <span>decentralizing</span>
+        <span>connecting</span>
       </div>
     </div>
     </span>
