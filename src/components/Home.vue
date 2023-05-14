@@ -1,5 +1,5 @@
 <script>
-import { ref, reactive, onBeforeMount, onMounted, onUnmounted } from "vue";
+import { ref, reactive, onBeforeMount, computed, onMounted, onUnmounted } from "vue";
 import _ from 'underscore';
 import gsap from 'gsap';
 
@@ -55,8 +55,11 @@ export default{
     const righte = ref(null);
     // 頁尾
     const Bottomdata = reactive({
-      info : 'Copyright © 2022 ALLIZONE All Rights Reserved'
+      info : 'Copyright © 2022 ALLIZONE All Rights Reserved',
+      year: new Date().getFullYear(),
+      updatedInfo: computed(() => `Copyright © ${Bottomdata.year} ALLIZONE All Rights Reserved`)
     });
+
     const debounceFunc = (func, delay) => {
        let timer;
         return function(...args) {
@@ -751,7 +754,7 @@ class="relative overflow-hidden" style="background: #020020;">
     class="flex flex-col justify-center items-center">
       <a 
       class="text-white text-[10px]" 
-      href="mailto:info@allizone.io">{{ Bottomdata.info }}</a>
+      href="mailto:info@allizone.io">{{ Bottomdata.updatedInfo }}</a>
     </div>
   </footer>
 </div>
